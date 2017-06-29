@@ -60,8 +60,8 @@ move_name = dict()
 raid_rarity = [[],
 	["153","156","159","129"],
 	["103","89","126","125","110"],
-	["59","65","68","126","125"],
-	["3","6","9","143","131","248"],
+	["59","65","68","134","135","136","94"],
+	["3","6","9","112","143","131","248"],
 ];
 
 # Define a few command handlers. These usually take the two arguments bot and
@@ -102,8 +102,6 @@ def cmd_help(bot, update):
     "Speichert deine Einstellungen. *Dies ist wichtig*, damit du nach einem Neustart des Bots deine Einstellungen behälst! \n" + \
     "/laden \n" + \
     "Lade deine gespeicherten Einstellungen \n" + \
-    "/status \n" + \
-    "Liste deine aktuellen Einstellungen auf \n" + \
     "/ende \n" + \
     "Damit kannst du alle deine Einstellungen löschen und den Bot ausschalten. Du kannst ihn danach mit /laden " + \
     "wieder einschalten und deine Einstellungen werden geladen \n"
@@ -134,11 +132,11 @@ def cmd_add(bot, update, args, job_queue):
     userName = update.message.from_user.username
 
     pref = prefs.get(chat_id)
-    pokemon_in_raid = [153,156,159,129,103,89,126,125,110,3,6,9,94,134,135,136,3,5,6,9,143,131,248]
+    pokemon_in_raid = [3,6,9,59,65,68,89,94,103,110,112,125,126,129,134,135,136,143,153,156,159,248]
 	
     if args != []:
         if args[0].isdigit():
-            if len(args) <= 0:
+            if len(args) < 1:
                 bot.sendMessage(chat_id, text='Nutzung: "/pokemon #Nummer" oder "/pokemon #Nummer1 #Nummer2 ... (Ohne #)')
                 return
         else:
@@ -187,7 +185,7 @@ def cmd_addByRarity(bot, update, args, job_queue):
 
     if args != []:
         if args[0].isdigit():
-            if len(args) <= 0:
+            if len(args) < 1:
                 bot.sendMessage(chat_id, text='Nutzung: "/raid #Level"')
                 return
         else:
@@ -212,8 +210,82 @@ def cmd_addByRarity(bot, update, args, job_queue):
         cmd_list(bot, update)
     except Exception as e:
         logger.error('[%s@%s] %s' % (userName, chat_id, repr(e)))
-        bot.sendMessage(chat_id, text='Nutzung: "/raid #Level"')
+        bot.sendMessage(chat_id, text='Nutzung: "/raid #Level')
 
+def cmd_level(bot, update, args):
+    chat_id = update.message.chat_id
+    userName = update.message.from_user.username
+
+    # Lade User Einstellungen
+    pref = prefs.get(chat_id)
+    
+    # Fange keine Eingabe oder mehr als 2 Eingaben ab
+    if args != []:
+        if args[0].isdigit():
+            if len(args) < 1 or len(args) > 2:
+                bot.sendMessage(chat_id, text='Nutzung: "/level #raidlevel" (Ohne #!)')
+                return
+        else:
+            bot.sendMessage(chat_id, text='Bitte nur Zahlenwerte eingeben!')
+            return
+    else:
+        bot.sendMessage(chat_id, text='Bitte nur Zahlenwerte eingeben!')
+        return
+
+    if len(args) == 1:
+        raid_level = int(args[0])
+    else:
+        raid_level = 0
+		
+    # Fange Werte unter 0 ab
+    if raid_level < 1 or raid_level > 5:
+        bot.sendMessage(chat_id, text='Nutzung: "/level #raidlevel" (Ohne # und nicht unter 0/über 5!)')
+        return
+
+    # Setze raid_level
+    pref.set('level', raid_level)
+
+    # Sende Bestaetigung
+    logger.info('[%s@%s] Set raidlevel to %s' % (userName, chat_id, raid_level))
+    bot.sendMessage(chat_id, text='Setze Raidlevel auf: %s' % raid_level)
+
+def cmd_timer(bot, update, args):
+    chat_id = update.message.chat_id
+    userName = update.message.from_user.username
+
+    # Lade User Einstellungen
+    pref = prefs.get(chat_id)
+    
+    # Fange keine Eingabe oder mehr als 2 Eingaben ab
+    if args != []:
+        if args[0].isdigit():
+            if len(args) < 1 or len(args) > 2:
+                bot.sendMessage(chat_id, text='Nutzung: "/timer #minuten" (Ohne #!)')
+                return
+        else:
+            bot.sendMessage(chat_id, text='Bitte nur Zahlenwerte eingeben!')
+            return
+    else:
+        bot.sendMessage(chat_id, text='Bitte nur Zahlenwerte eingeben!')
+        return
+
+    if len(args) == 1:
+        egg_timer = int(args[0])
+    else:
+        egg_timer = 0
+		
+    # Fange Werte unter 0 ab
+    if egg_timer < 1 or egg_timer > 120:
+        bot.sendMessage(chat_id, text='Nutzung: "/timer #minuten" (Ohne # und nicht unter 0/über 120!)')
+        return
+
+    # Setze raid_level
+    pref.set('timer', egg_timer)
+
+    # Sende Bestaetigung
+    logger.info('[%s@%s] Set timer to %s' % (userName, chat_id, egg_timer))
+    bot.sendMessage(chat_id, text='Setze Timer auf: %s Minuten' % egg_timer)
+	
 
 def cmd_clear(bot, update):
     chat_id = update.message.chat_id
@@ -256,8 +328,8 @@ def cmd_remove(bot, update, args, job_queue):
 
     if args != []:
         if args[0].isdigit():
-            if len(args) < 1 or len(args) > 2:
-                bot.sendMessage(chat_id, text='Nutzung: "/lvl #minimum oder /lvl #minimum #maximum" (Ohne #!)')
+            if len(args) < 1:
+                bot.sendMessage(chat_id, text='Nutzung: "/entferne #Pokemonnummer(n) (Ohne #!)')
                 return
         else:
             bot.sendMessage(chat_id, text='Bitte nur Zahlenwerte eingeben!')
@@ -352,6 +424,8 @@ def cmd_load(bot, update, job_queue):
         loc = pref.get('location')
         lat = loc[0]
         lon = loc[1]
+        timer = pref.get('timer')
+        level = pref.get('level')
 
         # Korrigiere Einstellungen, wenn jemand "null" oder "strings" hat
         if lat is None or lon is None:
@@ -360,16 +434,6 @@ def cmd_load(bot, update, job_queue):
         checkAndSetUserDefaults(pref)
 			
         cmd_saveSilent(bot, update)
-		
-        prefmessage = "*Einstellungen:*\nMinimum IV: *%s*, Maximum IV: *%s*\nMinimum WP: *%s*, " % (miniv, maxiv, mincp) + \
-        "Maximum WP: *%s*\nMinimum Level: *%s*, Maximum Level: *%s*\nModus: *%s*\nWasser: *%s*\nStandort nicht gesetzt" % (maxcp, minlvl ,maxlvl, mode, water)
-        if lat is not None:
-            radius = float(loc[2])*1000
-            prefmessage = "*Einstellungen:*\nMinimum IV: *%s*, Maximum IV: *%s*\nMinimum WP: *%s*, " % (miniv, maxiv, mincp) + \
-            "Maximum WP: *%s*\nMinimum Level: *%s*, Maximum Level: *%s*\nModus: *%s*\nWasser: *%s*\n" % (maxcp, minlvl, maxlvl, mode, water)+ \
-            "Standort: %s,%s\nRadius: %s m" % (lat, lon, radius)
-
-        bot.sendMessage(chat_id, text='%s' % (prefmessage), parse_mode='Markdown')
     else:
         if chat_id not in jobs:
             job = jobs[chat_id]
@@ -396,6 +460,8 @@ def cmd_load_silent(bot, chat_id, job_queue):
         loc = pref.get('location')
         lat = loc[0]
         lon = loc[1]
+        timer = pref.get('timer')
+        level = pref.get('level')
 
         checkAndSetUserDefaults(pref)
 			
@@ -441,7 +507,7 @@ def cmd_location_str(bot, update, args, job_queue):
         bot.sendMessage(chat_id, text='Du hast keinen aktiven Scanner! Bitte füge erst Pokémon zu deiner Liste hinzu mit /pokemon 1 2 3 ...')
         return
 
-    if len(args) <= 0:
+    if len(args) < 1:
         bot.sendMessage(chat_id, text='You have not supplied a location')
         return
 
@@ -595,6 +661,7 @@ def checkAndSend(bot, chat_id, pokemons):
     pref = prefs.get(chat_id)
     lock = locks[chat_id]
     logger.info('[%s] Checking pokemon and sending notifications.' % (chat_id))
+
     if len(pokemons) == 0:
         return
 
@@ -603,7 +670,15 @@ def checkAndSend(bot, chat_id, pokemons):
         lan = pref['language']
         mySent = sent[chat_id]
         location_data = pref['location']
+        egg_timer = pref['timer']
+        raid_level = pref['level']
 
+        if egg_timer is None:
+            pref.set('timer', 0)
+            egg_timer = 0
+        if raid_level is None:
+            pref.set('level', 4)
+            raid_level = 4
 
         # Standort setzen wenn keiner eingegeben wurde:
         if location_data[0] is not None and location_data[2] is None:
@@ -649,13 +724,15 @@ def checkAndSend(bot, chat_id, pokemons):
             pok_id = pokemon.getPokemonID()
             latitude = pokemon.getLatitude()
             longitude = pokemon.getLongitude()
-            disappear_time = pokemon.getRaidEndTime()
+            end_time = pokemon.getRaidEndTime()
+            start_time = pokemon.getRaidStartTime()
             move1 = pokemon.getMove1()
             move2 = pokemon.getMove2()
             level = pokemon.getLevel()
             gym_name = pokemon.getName()
             team = pokemon.getTeam()
             team_name = ""
+
             if int(team) == 0:
                 team_name = "Rocket"
             elif int(team) == 1:
@@ -665,22 +742,37 @@ def checkAndSend(bot, chat_id, pokemons):
             elif int(team) == 3:
                 team_name = "Intuition"
 			
-            delta = disappear_time - datetime.utcnow()
-            deltaStr = '%02dm:%02ds' % (int(delta.seconds / 60), int(delta.seconds % 60))
-            disappear_time_str = disappear_time.replace(tzinfo=timezone.utc).astimezone(tz=None).strftime("%H:%M:%S")
+            delta_end = end_time - datetime.utcnow()
+            delta_end_Str = '%02dm:%02ds' % (int(delta_end.seconds / 60), int(delta_end.seconds % 60))
+            end_time_str = end_time.replace(tzinfo=timezone.utc).astimezone(tz=None).strftime("%H:%M:%S")
 
-            pkmname =  pokemon_name[lan][pok_id]
-            header = "Raidboss: " + "*" + pkmname + "*"
-            info = "\nLevel: *%s*\nEnde: *%s (%s)*\nArena: *%s*\nTeam: *%s*" % (level, disappear_time_str, deltaStr, gym_name, team_name)
+            delta_start = start_time - datetime.utcnow()
+            delta_start_Str = '%02dm:%02ds' % (int(delta_start.seconds / 60), int(delta_start.seconds % 60))
+            start_time_str = start_time.replace(tzinfo=timezone.utc).astimezone(tz=None).strftime("%H:%M:%S")			
 
-            move1Name = moveNames[move1]
-            move2Name = moveNames[move2]
-            info += "\nMoves: *%s/%s*" % (move1Name, move2Name)
+			# Build message
+            if pok_id == 'None':
+                if int(egg_timer) > 0 and int(egg_timer) >= int(delta_start.seconds / 60) and int(level) >= int(raid_level):
+                    header = "Level *%s* Ei! Raidboss erscheint in: " % (level)
+                    info = "*%s (%s)*.\nMache dich bereit!" % (delta_start_Str, start_time_str)
 
+                    # Manipulate the encounterID to be sure that Pokemon will be send when hatched
+                    encounter_id += 'np'
+
+            else:
+                pkmname =  pokemon_name[lan][pok_id]
+                header = "Raidboss: " + "*" + pkmname + "*"
+                info = "\nLevel: *%s*\nEnde: *%s (%s)*\nArena: *%s*\nTeam: *%s*" % (level, end_time_str, delta_end_Str, gym_name, team_name)
+
+                move1Name = moveNames[move1]
+                move2Name = moveNames[move2]
+                info += "\nMoves: *%s/%s*" % (move1Name, move2Name)
+
+            # Send message
             if encounter_id not in mySent:
-                mySent[encounter_id] = disappear_time
+                mySent[encounter_id] = end_time
 
-                notDisappeared = delta.seconds > 0
+                notDisappeared = delta_end.seconds > 0
 
                 if notDisappeared:
                     try:
@@ -848,9 +940,13 @@ def main():
     dp.add_handler(CommandHandler("Location", cmd_location_str, pass_args=True, pass_job_queue=True))
     dp.add_handler(CommandHandler("standort", cmd_location_str, pass_args=True, pass_job_queue=True))
     dp.add_handler(CommandHandler("Standort", cmd_location_str, pass_args=True, pass_job_queue=True))
-    #dp.add_handler(CommandHandler("remloc", cmd_clearlocation))
-    #dp.add_handler(CommandHandler("entfernestandort", cmd_clearlocation))
-    #dp.add_handler(CommandHandler("Enfernestandort", cmd_clearlocation))
+    dp.add_handler(CommandHandler("remloc", cmd_clearlocation))
+    dp.add_handler(CommandHandler("entfernestandort", cmd_clearlocation))
+    dp.add_handler(CommandHandler("Enfernestandort", cmd_clearlocation))
+    dp.add_handler(CommandHandler("timer", cmd_timer, pass_args = True))
+    dp.add_handler(CommandHandler("Timer", cmd_timer, pass_args = True))
+    dp.add_handler(CommandHandler("level", cmd_level, pass_args = True))
+    dp.add_handler(CommandHandler("Level", cmd_level, pass_args = True))
     dp.add_handler(MessageHandler([Filters.location],cmd_location))
     dp.add_handler(MessageHandler([Filters.command], cmd_unknown))
 

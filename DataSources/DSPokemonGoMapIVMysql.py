@@ -28,11 +28,11 @@ class DSPokemonGoMapIVMysql():
 		sqlquery = ("SELECT r.gym_id, r.pokemon_id, g.latitude, g.longitude, r.level, "
 			"r.battle, r.end, r.move_1, r.move_2, d.name, g.team_id "
 			"FROM raid r, gym g, gymdetails d WHERE r.gym_id = g.gym_id AND r.gym_id = d.gym_id AND r.end > UTC_TIMESTAMP()")
-		sqlquery += ' AND r.pokemon_id in ('
+		sqlquery += ' AND (r.pokemon_id in ('
 		for pokemon in ids:
 			sqlquery += str(pokemon) + ','
 		sqlquery = sqlquery[:-1]
-		sqlquery += ')'
+		sqlquery += ') OR r.pokemon_id IS NULL)'
 		sqlquery += ' AND g.latitude BETWEEN "' + str(lat_s) + '" AND "' + str(lat_n) + '" AND g.longitude BETWEEN "' + str(lon_w) + '" AND "' + str(lon_e) +'"'
 		sqlquery += ' ORDER BY r.level DESC'
 
