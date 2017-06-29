@@ -82,6 +82,10 @@ def cmd_help(bot, update):
     "Fügt eine Gruppe von Pokémon je nach Raidlevel hinzu\n" + \
     "/entferne 1 \n" + \
     "Nummer des Pokémon löschen, wenn du über dieses nicht mehr benachrichtigt werden willst \n" + \
+    "/timer 15 \n" + \
+    "Stellt den Timer ein, damit du vor einem Raid über das Ei benachrichtigt wirst. /timer 0 deaktivert den Timer! \n" + \
+    "/level 1 \n" + \
+    "Setzte das minimale Raidlevel, über das du vor dem Raidboss benachrichtigt wirst \n" + \
     "/entferne 1 2 3 ... \n" + \
     "Mehrfache Nummern der Pokémon löschen, wenn du über diese nicht mehr benachrichtigt werden willst \n\n" + \
     "*Standort:*\n\n" + \
