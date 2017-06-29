@@ -26,8 +26,8 @@ class UserPreferencesModel(object):
             location = [None, None, None],
             language = self.loadedconfig.get('DEFAULT_LANG', 'en'),
             search_ids = [],
-			timer = 0,
-			level = 4,
+            timer = 0,
+            level = 4,
         )
         return preferences
 
