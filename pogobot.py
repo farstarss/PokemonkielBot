@@ -279,7 +279,7 @@ def cmd_timer(bot, update, args):
         egg_timer = 0
 		
     # Fange Werte unter 0 ab
-    if egg_timer < 1 or egg_timer > 120:
+    if egg_timer < 0 or egg_timer > 120:
         bot.sendMessage(chat_id, text='Nutzung: "/timer #minuten" (Ohne # und nicht unter 0/über 120!)')
         return
 
@@ -745,7 +745,7 @@ def checkAndSend(bot, chat_id, pokemons):
                 team_name = "Wagemut"
             elif int(team) == 3:
                 team_name = "Intuition"
-			
+            send_it = 0
             delta_end = end_time - datetime.utcnow()
             delta_end_Str = '%02dm:%02ds' % (int(delta_end.seconds / 60), int(delta_end.seconds % 60))
             end_time_str = end_time.replace(tzinfo=timezone.utc).astimezone(tz=None).strftime("%H:%M:%S")
@@ -762,6 +762,7 @@ def checkAndSend(bot, chat_id, pokemons):
 
                     # Manipulate the encounterID to be sure that Pokemon will be send when hatched
                     encounter_id += 'np'
+                    send_it = 1
 
             else:
                 pkmname =  pokemon_name[lan][pok_id]
@@ -771,6 +772,7 @@ def checkAndSend(bot, chat_id, pokemons):
                 move1Name = moveNames[move1]
                 move2Name = moveNames[move2]
                 info += "\nMoves: *%s/%s*" % (move1Name, move2Name)
+                send_it = 1
 
             # Send message
             if encounter_id not in mySent:
@@ -778,7 +780,7 @@ def checkAndSend(bot, chat_id, pokemons):
 
                 notDisappeared = delta_end.seconds > 0
 
-                if notDisappeared:
+                if notDisappeared and send_it == 1:
                     try:
                         bot.sendLocation(chat_id, latitude, longitude)
                         bot.sendMessage(chat_id, text = '%s%s' % (header, info), parse_mode='Markdown')
