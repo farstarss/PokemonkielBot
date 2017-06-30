@@ -759,10 +759,11 @@ def checkAndSend(bot, chat_id, pokemons):
                 if int(egg_timer) > 0 and int(egg_timer) >= int(delta_start.seconds / 60) and int(level) >= int(raid_level):
                     header = "Level *%s* Ei! Raidboss erscheint in: " % (level)
                     info = "*%s (%s)*.\nMache dich bereit!" % (delta_start_Str, start_time_str)
-
-                    # Manipulate the encounterID to be sure that Pokemon will be send when hatched
-                    encounter_id += 'np'
                     send_it = 1
+                    # Manipulate the encounterID to be sure that Pokemon will be send when hatched
+                    encounter_id += 'npegg'
+                encounter_id += 'np'
+
 
             else:
                 pkmname =  pokemon_name[lan][pok_id]
@@ -784,7 +785,7 @@ def checkAndSend(bot, chat_id, pokemons):
                     try:
                         bot.sendLocation(chat_id, latitude, longitude)
                         bot.sendMessage(chat_id, text = '%s%s' % (header, info), parse_mode='Markdown')
-                        sleep(0.5)
+                        sleep(0.1)
                     except Exception as e:
                         logger.error('[%s] %s' % (chat_id, repr(e)))
 
